@@ -1,0 +1,72 @@
+from keras._tf_keras.keras.preprocessing.image import ImageDataGenerator
+from keras._tf_keras.keras.models import Sequential
+from keras._tf_keras.keras.layers import Conv2D, MaxPooling2D
+from keras._tf_keras.keras.layers import Activation, Dense, Dropout, Flatten
+
+
+width=256
+height=256
+size=(width,height)
+input_shape=(width,height,3)
+batch_size=32
+dataGen=ImageDataGenerator(rescale=1./255)
+
+train_generator=dataGen.flow_from_directory(
+    directory=r"C:\Users\user\Python_Projects\Work\Machine_View\Training",
+    target_size=size,
+    batch_size=batch_size,
+    class_mode='binary',
+    shuffle=True)
+val_generator=dataGen.flow_from_directory(
+    directory=r"C:\Users\user\Python_Projects\Work\Machine_View\Validation",
+    target_size=size,
+    batch_size=batch_size,
+    class_mode='binary',
+    shuffle=True)
+test_generator=dataGen.flow_from_directory(
+    directory=r"C:\Users\user\Python_Projects\Work\Machine_View\Testing",
+    target_size=size,
+    batch_size=batch_size,
+    class_mode='binary',
+    shuffle=True)
+
+model=Sequential()
+model.add(Conv2D(32,(3,3), input_shape=input_shape))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+
+model.add(Conv2D(32,(3,3)))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+
+model.add(Conv2D(64,(3,3)))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+
+model.add(Flatten())
+model.add(Dense(64))
+model.add(Activation('relu'))
+model.add(Dropout(0.5))
+model.add(Dense(1))
+model.add(Activation('sigmoid'))
+
+model.compile(
+    loss='binary_crossentropy',
+    optimizer='adam',
+    metrics=['accuracy'])
+
+epochs=30
+train_len=16800
+val_len=1500
+test_len=200
+
+model.fit(
+    train_generator,
+    epochs=epochs,
+    validation_data=val_generator)
+
+scores=model.evaluate(test_generator)
+
+print("Accuracy: %.2f%%" % (scores[1]*100))
+print(scores)
+print(scores[1])
